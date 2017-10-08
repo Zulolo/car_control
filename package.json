@@ -9,6 +9,7 @@
   "author": "zulolo",
   "license": "MIT",
   "dependencies": {
-    "pigpio": "^0.6.2"
+    "pigpio": "^0.6.2",
+    "websocket": "^1.0.24"
   }
 }
