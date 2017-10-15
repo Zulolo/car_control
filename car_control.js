@@ -1,43 +1,59 @@
-'use strict';
+express = require('express'); //web server
+app = express();
+server = require('http').createServer(app);
+io = require('socket.io').listen(server); //web socket server
 
-var assert = require('assert'),
-  Gpio = require('pigpio').Gpio,
-  iv,
-  motor = new Gpio(13, {
-    mode: Gpio.OUTPUT
-  }),
-  pulseWidth = 1500;
+server.listen(8080); //start the webserver on port 8080
+app.use(express.static('public')); //tell the server that ./public/ contains the static webpages
 
-function wait(ms) {
-  var start = new Date().getTime();
-  var end = start;
-  while (end < start + ms) {
-    end = new Date().getTime();
-  }
-}
+// var SerialPort = require("serialport").SerialPort
+// var serialPort = new SerialPort("/dev/serial1", {
+//   baudrate: 115200
+// });
 
-motor.servoWrite(pulseWidth);
-// assert.strictEqual(motor.getServoPulseWidth(), 0,
-//   'expected pulseWidth to be 0'
-// );
-wait(2000);
-iv = setInterval(function() {
-  var pulseWidthRead;
+var brightness = 0; //static variable to hold the current brightness
+io.sockets.on('connection', function(socket) { //gets called whenever a client connects
+  socket.emit('led', {
+    value: brightness
+  }); //send the new client the current brightness
 
-  motor.servoWrite(pulseWidth);
+  socket.on('led', function(data) { //makes the socket react to 'led' packets by calling this function
+    console.log('led ', data);
+    brightness = data.value; //updates brightness from the data object
+    // var buf = new Buffer(1); //creates a new 1-byte buffer
+    // buf.writeUInt8(brightness, 0); //writes the pwm value to the buffer
+    // serialPort.write(buf); //transmits the buffer to the arduino
 
-  pulseWidthRead = motor.getServoPulseWidth();
-  assert.strictEqual(pulseWidthRead, pulseWidth,
-    'expected pulseWidth to be ' + pulseWidth + ', not ' + pulseWidthRead
-  );
+    io.sockets.emit('led', {
+      value: brightness
+    }); //sends the updated brightness to all connected clients
+  });
 
-  pulseWidth += 200;
-  if (pulseWidth > 2500) {
-    pulseWidth = 1500;
-  }
-}, 1500);
+  socket.on('setTime', function(data) {
+    // console.log('setTime ', data);
+    socket.emit('getTime', data);
+  });
 
-setTimeout(function() {
-  clearInterval(iv);
-  motor.digitalWrite(0);
-}, 20000);
+});
+
+// io.sockets.on('connection', function(socket) {
+//   console.log('Connect!');
+//   socket.on('set nickname', function(name) {
+//     socket.set('nickname', name, function() {
+//       socket.emit('ready');
+//     });
+//   });
+
+//   socket.on('msg', function(data) {
+//     console.log('msg ', data);
+//     socket.get('nickname', function(err, name) {
+//       console.log('Chat message by ', name);
+//     });
+//   });
+
+//   socket.on('ping', function(data) {
+//     console.log('Ping ', data);
+//     socket.emit(data);
+//   });
+
+// });
