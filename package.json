@@ -1,8 +1,8 @@
 {
-  "name": "car_control",
+  "name": "car_status",
   "version": "0.0.0",
-  "description": "remote car control",
-  "main": "car_control.js",
+  "description": "Show remote car status and some non-real time control",
+  "main": "car_status.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -34,6 +34,11 @@ io.sockets.on('connection', function(socket) { //gets called whenever a client c
     socket.emit('getTime', data);
   });
 
+  socket.on('setOrientation', function(data) {
+    // console.log('setTime ', data);
+    socket.emit('getOrientation', data);
+  });
+
 });
 
 // io.sockets.on('connection', function(socket) {
